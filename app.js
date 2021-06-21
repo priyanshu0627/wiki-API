@@ -20,6 +20,8 @@ const articleSchema = {
 
 const Article = mongoose.model("Article",articleSchema);
 
+/////////////////////////REQUEST TO ALL (IN REST)//////////////////////////
+
 app.route("/articles")
   .get(function(req,res){
     Article.find({},function(err,data){
@@ -39,7 +41,7 @@ app.route("/articles")
     newEntry.save(function(err){
       if (err) {
         console.log("error from post/");
-        res.send("error from post/")
+        res.send("error from post/");
       } else {
         res.send("successfully posted "+ newEntry);
       }
@@ -55,6 +57,55 @@ app.route("/articles")
     });
   });
 
+//////////////////////////////////////REQUEST TO SPECIFIC (IN REST)/////////////////
+
+app.route("/articles/:user")
+  .get(function(req,res){
+    Article.findOne({title: req.params.user},function(err,data){
+      if (err) {
+        res.send(err);
+      } else {
+        res.send(data);
+      }
+    });
+  })
+  .put(function(req,res){
+    Article.update(
+      {title: req.params.user},
+      {title: req.body.title, content: req.body.content},
+      {overwrite: true},
+      function(err){
+        if(!err){
+          res.send("done");
+        }
+      }
+    );
+  })
+  .patch(function(req,res){
+    Article.update(
+      {title: req.params.user},
+      {$set: req.body},
+      function(err){
+        if (err) {
+          res.send(err);
+        } else {
+          res.send("done");
+        }
+      }
+    );
+  })
+  .delete(function(req,res){
+    Article.deleteOne(
+      {title: req.params.user},
+      function(err){
+        if (err) {
+          res.send(err);
+        } else {
+          res.send("done");
+        }
+      }
+    );
+  });
 
 app.listen(process.env.PORT || 3000 , function(req,res) {
   console.log("Server Started");
